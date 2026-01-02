@@ -1,0 +1,16 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.mine_diver.smoothbeta.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "client.multidraw.compat.arsenic.ArsenicTessellatorMixin",
+    "client.multidraw.compat.stationrendererapi.StationTessellatorImplMixin"
+  ],
+  "mixins": [
+    "entity.compat.stationentities.EntityRegisterEventMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

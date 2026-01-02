@@ -4,7 +4,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.smoothbeta.client.render.gl.GlStateManager;
 import net.mine_diver.smoothbeta.mixin.client.MinecraftAccessor;
 import net.minecraft.client.util.GlAllocationUtils;
-import net.modificationstation.stationapi.api.util.collection.LinkedList;
+import net.mine_diver.smoothbeta.api.util.collection.LinkedList;
 import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;

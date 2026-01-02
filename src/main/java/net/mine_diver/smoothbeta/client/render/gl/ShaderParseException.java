@@ -1,15 +1,15 @@
 package net.mine_diver.smoothbeta.client.render.gl;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ShaderParseException extends IOException {
-	private final List<JsonStackTrace> traces = Lists.newArrayList();
+	private final List<JsonStackTrace> traces = new ArrayList<>();
 	private final String message;
 
 	public ShaderParseException(String message) {
@@ -38,7 +38,7 @@ public class ShaderParseException extends IOException {
 
 	public static ShaderParseException wrap(Exception cause) {
 		if (cause instanceof ShaderParseException) {
-			return (ShaderParseException)cause;
+			return (ShaderParseException) cause;
 		} else {
 			String string = cause.getMessage();
 			if (cause instanceof FileNotFoundException) {
@@ -52,9 +52,10 @@ public class ShaderParseException extends IOException {
 	public static class JsonStackTrace {
 		@Nullable
 		String fileName;
-		private final List<String> faultyElements = Lists.newArrayList();
+		private final List<String> faultyElements = new ArrayList<>();
 
-		JsonStackTrace() {}
+		JsonStackTrace() {
+		}
 
 		void add(String element) {
 			this.faultyElements.add(0, element);

@@ -3,13 +3,13 @@ package net.mine_diver.smoothbeta.client.render.gl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.GlAllocationUtils;
-import net.modificationstation.stationapi.api.util.math.Vec3f;
+import net.mine_diver.smoothbeta.api.util.math.Vec3f;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import static net.modificationstation.stationapi.impl.client.texture.StationRenderImpl.LOGGER;
+import static net.mine_diver.smoothbeta.SmoothBeta.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class GlUniform extends Uniform implements AutoCloseable {

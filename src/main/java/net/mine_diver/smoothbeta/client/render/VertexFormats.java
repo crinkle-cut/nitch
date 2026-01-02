@@ -1,8 +1,9 @@
 package net.mine_diver.smoothbeta.client.render;
 
-import com.google.common.collect.ImmutableMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 @Environment(EnvType.CLIENT)
 public class VertexFormats {
@@ -17,7 +18,11 @@ public class VertexFormats {
       public static final VertexFormatElement PADDING_ELEMENT = new VertexFormatElement(0,
                   VertexFormatElement.ComponentType.BYTE, VertexFormatElement.Type.PADDING, 5);
       public static final VertexFormat POSITION_TEXTURE_COLOR_NORMAL = new VertexFormat(
-                  ImmutableMap.<String, VertexFormatElement>builder().put("Position", POSITION_ELEMENT)
-                              .put("UV0", TEXTURE_0_ELEMENT).put("Color", COLOR_ELEMENT).put("Normal", NORMAL_ELEMENT)
-                              .put("Padding", PADDING_ELEMENT).build());
+                  net.mine_diver.smoothbeta.api.util.Util.make(new LinkedHashMap<>(), map -> {
+                        map.put("Position", POSITION_ELEMENT);
+                        map.put("UV0", TEXTURE_0_ELEMENT);
+                        map.put("Color", COLOR_ELEMENT);
+                        map.put("Normal", NORMAL_ELEMENT);
+                        map.put("Padding", PADDING_ELEMENT);
+                  }));
 }

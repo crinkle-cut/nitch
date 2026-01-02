@@ -2,7 +2,7 @@ package net.mine_diver.smoothbeta.client.render;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.util.math.MathHelper;
+import net.mine_diver.smoothbeta.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.ByteBuffer;

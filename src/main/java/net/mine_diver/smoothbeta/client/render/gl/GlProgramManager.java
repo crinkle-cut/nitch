@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL20;
 
 import java.io.IOException;
 
-import static net.modificationstation.stationapi.impl.client.texture.StationRenderImpl.LOGGER;
+import static net.mine_diver.smoothbeta.SmoothBeta.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class GlProgramManager {

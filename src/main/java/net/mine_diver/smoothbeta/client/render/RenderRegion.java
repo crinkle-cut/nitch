@@ -5,7 +5,7 @@ import net.mine_diver.smoothbeta.client.render.gl.VertexBuffer;
 import net.mine_diver.smoothbeta.mixin.client.multidraw.RenderListAccessor;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.world.ChunkRenderer;
-import net.modificationstation.stationapi.api.util.math.Vec3f;
+import net.mine_diver.smoothbeta.api.util.math.Vec3f;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;

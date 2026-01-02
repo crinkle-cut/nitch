@@ -1,13 +1,10 @@
 package net.mine_diver.smoothbeta.entity;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
-import net.modificationstation.stationapi.api.util.Util;
 
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
@@ -22,17 +19,16 @@ public class SmoothEntityRegistry {
 
     private static final Function<World, Entity> EMPTY_CONSTRUCTOR = level -> null;
     private static final Map<String, Function<World, Entity>> STRING_ID_TO_CONSTRUCTOR = new HashMap<>();
-    private static final Int2ObjectMap<Function<World, Entity>> ID_TO_CONSTRUCTOR = Util.make(new Int2ObjectOpenHashMap<>(), map -> map.defaultReturnValue(EMPTY_CONSTRUCTOR));
+    private static final Map<Integer, Function<World, Entity>> ID_TO_CONSTRUCTOR = new HashMap<>();
 
     private static Function<World, Entity> findConstructor(Class<? extends Entity> entityClass) throws Throwable {
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         MethodHandle mh = lookup.findConstructor(entityClass, methodType(void.class, World.class));
-        //noinspection unchecked
+        // noinspection unchecked
         return (Function<World, Entity>) LambdaMetafactory.metafactory(
                 lookup,
                 "apply", methodType(Function.class),
-                mh.type().generic(), mh, mh.type()
-        ).getTarget().invokeExact();
+                mh.type().generic(), mh, mh.type()).getTarget().invokeExact();
     }
 
     public static void register(Class<? extends Entity> entityClass, String identifier, int id) {
@@ -69,7 +65,7 @@ public class SmoothEntityRegistry {
 
     @Environment(EnvType.CLIENT)
     public static Entity create(int id, World level) {
-        Entity var2 = ID_TO_CONSTRUCTOR.get(id).apply(level);
+        Entity var2 = ID_TO_CONSTRUCTOR.getOrDefault(id, EMPTY_CONSTRUCTOR).apply(level);
         if (var2 == null)
             System.out.println("Skipping Entity with id " + id);
         return var2;

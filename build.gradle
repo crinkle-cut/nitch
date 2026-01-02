@@ -73,7 +73,7 @@ dependencies {
 	implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.2'
 	implementation(include("me.carleslc:Simple-Yaml:1.8.4") as Dependency)
 
-	modImplementation "net.modificationstation:StationAPI:${project.stapi_version}"
+	modCompileOnly "net.modificationstation:StationAPI:${project.stapi_version}"
 
 	// Optional, but convenient mods for mod creators and users alike.
 	modImplementation("net.glasslauncher.mods:ModMenu:${project.modmenu_version}") {

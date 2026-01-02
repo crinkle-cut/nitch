@@ -1,9 +1,9 @@
 package net.mine_diver.smoothbeta.client;
 
-import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
-import net.modificationstation.stationapi.api.mod.entrypoint.EventBusPolicy;
+import net.fabricmc.api.ClientModInitializer;
 
-@Entrypoint(eventBus = @EventBusPolicy(registerStatic = false, registerInstance = false))
-public class SmoothBetaClient {
-
+public class SmoothBetaClient implements ClientModInitializer {
+    @Override
+    public void onInitializeClient() {
+    }
 }

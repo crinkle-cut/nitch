@@ -1,7 +1,6 @@
 package net.mine_diver.smoothbeta.client.render;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.lwjgl.opengl.GL11;
@@ -10,10 +9,10 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class VertexFormat {
-    private final ImmutableMap<String, VertexFormatElement> elementMap;
+    private final Map<String, VertexFormatElement> elementMap;
     private final int vertexSizeByte;
 
-    public VertexFormat(ImmutableMap<String, VertexFormatElement> elementMap) {
+    public VertexFormat(Map<String, VertexFormatElement> elementMap) {
         this.elementMap = elementMap;
         int i = 0;
         for (VertexFormatElement vertexFormatElement : elementMap.values())
@@ -30,8 +29,8 @@ public class VertexFormat {
         return this.vertexSizeByte;
     }
 
-    public ImmutableList<String> getAttributeNames() {
-        return this.elementMap.keySet().asList();
+    public List<String> getAttributeNames() {
+        return new ArrayList<>(this.elementMap.keySet());
     }
 
     public boolean equals(Object o) {

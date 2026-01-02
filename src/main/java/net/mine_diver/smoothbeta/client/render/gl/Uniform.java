@@ -2,7 +2,7 @@ package net.mine_diver.smoothbeta.client.render.gl;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.util.math.Vec3f;
+import net.mine_diver.smoothbeta.api.util.math.Vec3f;
 
 @Environment(EnvType.CLIENT)
 public class Uniform {

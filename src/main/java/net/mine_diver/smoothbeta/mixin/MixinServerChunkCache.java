@@ -1,7 +1,6 @@
 package net.mine_diver.smoothbeta.mixin;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import java.util.HashMap;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -21,25 +20,26 @@ import java.util.Map;
 @Mixin(ChunkCache.class)
 abstract class MixinServerChunkCache {
 
-    @Shadow private Map<Integer, Chunk> chunkByPos;
+    @Shadow
+    private Map<Integer, Chunk> chunkByPos;
 
-    @Shadow public abstract Chunk loadChunk(int chunkX, int chunkZ);
+    @Shadow
+    public abstract Chunk loadChunk(int chunkX, int chunkZ);
 
     @Unique
-    private Int2ObjectMap<Chunk> smoothbeta$serverChunkCache;
+    private Map<Integer, Chunk> smoothbeta$serverChunkCache;
 
-    @Inject(
-            method = "<init>",
-            at = @At("RETURN")
-    )
+    @Inject(method = "<init>", at = @At("RETURN"))
     private void getMap(World level, ChunkStorage arg1, ChunkSource arg2, CallbackInfo ci) {
-        smoothbeta$serverChunkCache = new Int2ObjectOpenHashMap<>();
+        smoothbeta$serverChunkCache = new HashMap<>();
         chunkByPos = smoothbeta$serverChunkCache;
     }
 
     // TODO: replace with ASM
     /**
-     * @reason Redirecting {@code serverChunkCache.containsKey(Vec2i.hash(chunkX, chunkZ))} still boxes the integer, adding unnecessary memory usage.
+     * @reason Redirecting
+     *         {@code serverChunkCache.containsKey(Vec2i.hash(chunkX, chunkZ))}
+     *         still boxes the integer, adding unnecessary memory usage.
      * @author mine_diver
      */
     @Overwrite
