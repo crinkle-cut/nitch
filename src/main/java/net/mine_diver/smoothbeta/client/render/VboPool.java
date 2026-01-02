@@ -232,7 +232,7 @@ public class VboPool implements AutoCloseable {
         while (this.bufferIndirect.hasRemaining()) {
             int count = this.bufferIndirect.get();
             this.bufferIndirect.get(); // instanceCount
-            int firstIndex = this.bufferIndirect.get();
+            this.bufferIndirect.get(); // firstIndex
             int baseVertex = this.bufferIndirect.get();
             this.bufferIndirect.get(); // baseInstance
 
@@ -271,10 +271,10 @@ public class VboPool implements AutoCloseable {
 
     private void renderBatch(int count, int baseVertex, VertexFormat.IndexType indextype) {
         long offset = (long) baseVertex * vertexBytes;
-        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 28, offset);
-        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 28, offset + 12);
-        GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 28, offset + 20);
-        GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 28, offset + 24);
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, vertexBytes, offset);
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, vertexBytes, offset + 12);
+        GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, vertexBytes, offset + 20);
+        GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, vertexBytes, offset + 24);
         GL11.glDrawElements(this.drawMode.glMode, count, indextype.glType, 0);
     }
 

@@ -61,6 +61,6 @@ abstract class TessellatorMixin implements SmoothTessellator {
 
     @ModifyConstant(method = "vertex(DDD)V", constant = @Constant(intValue = 8, ordinal = 2))
     private int smoothbeta_compactVertices(int constant) {
-        return smoothbeta_renderingTerrain ? 7 : 8;
+        return smoothbeta_renderingTerrain ? 8 : 8;
     }
 }
