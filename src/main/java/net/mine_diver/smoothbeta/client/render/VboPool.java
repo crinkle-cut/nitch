@@ -21,8 +21,8 @@ public class VboPool implements AutoCloseable {
     private int size;
     private final LinkedList<Pos> posList = new LinkedList<>();
     private Pos compactPosLast = null;
-
     private IntBuffer bufferIndirect = GlAllocationUtils.allocateIntBuffer(this.capacity * 5);
+    private ByteBuffer compactionBuffer;
     private final int vertexBytes;
     private VertexFormat.DrawMode drawMode = VertexFormat.DrawMode.QUADS;
 
@@ -148,11 +148,14 @@ public class VboPool implements AutoCloseable {
     private void copyVboData(int posFrom, int posTo, int size) {
         long i = this.toBytes(posFrom);
         long j = this.toBytes(posTo);
-        long k = this.toBytes(size);
-        ByteBuffer temp = GlAllocationUtils.allocateByteBuffer((int) k);
+        int k = (int) this.toBytes(size);
+        if (compactionBuffer == null || compactionBuffer.capacity() < k)
+            compactionBuffer = GlAllocationUtils.allocateByteBuffer(k);
+        compactionBuffer.clear();
+        compactionBuffer.limit(k);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, this.vertexBufferId);
-        GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, i, temp);
-        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, j, temp);
+        GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, i, compactionBuffer);
+        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, j, compactionBuffer);
         mc.smoothbeta_printOpenGLError("Copy VBO range");
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
@@ -171,11 +174,16 @@ public class VboPool implements AutoCloseable {
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, k, GL15.GL_STATIC_DRAW);
         mc.smoothbeta_printOpenGLError("Expand VBO");
 
-        ByteBuffer temp = GlAllocationUtils.allocateByteBuffer((int) j);
+        int jInt = (int) j;
+        if (compactionBuffer == null || compactionBuffer.capacity() < jInt)
+            compactionBuffer = GlAllocationUtils.allocateByteBuffer(jInt);
+        compactionBuffer.clear();
+        compactionBuffer.limit(jInt);
+
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, this.vertexBufferId);
-        GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0L, temp);
+        GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0L, compactionBuffer);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, l);
-        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0L, temp);
+        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0L, compactionBuffer);
         mc.smoothbeta_printOpenGLError("Copy VBO: " + k);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
@@ -212,6 +220,15 @@ public class VboPool implements AutoCloseable {
         autostorageindexbuffer.bindAndGrow(nextPos / 4 * 6);
         this.bufferIndirect.flip();
 
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(2);
+        GL20.glEnableVertexAttribArray(3);
+
+        int mergedCount = 0;
+        int mergedBaseVertex = -1;
+        int currentVertexCount = 0;
+
         while (this.bufferIndirect.hasRemaining()) {
             int count = this.bufferIndirect.get();
             this.bufferIndirect.get(); // instanceCount
@@ -219,23 +236,46 @@ public class VboPool implements AutoCloseable {
             int baseVertex = this.bufferIndirect.get();
             this.bufferIndirect.get(); // baseInstance
 
-            long offset = (long) baseVertex * vertexBytes;
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 28, offset);
-            GL20.glEnableVertexAttribArray(1);
-            GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 28, offset + 12);
-            GL20.glEnableVertexAttribArray(2);
-            GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 28, offset + 20);
-            GL20.glEnableVertexAttribArray(3);
-            GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 28, offset + 24);
+            int vertexCount = (drawMode == VertexFormat.DrawMode.QUADS || drawMode == VertexFormat.DrawMode.LINES)
+                    ? count / 6 * 4
+                    : count;
 
-            GL11.glDrawElements(this.drawMode.glMode, count, indextype.glType, (long) firstIndex * indextype.size);
+            if (mergedBaseVertex == -1) {
+                mergedCount = count;
+                mergedBaseVertex = baseVertex;
+                currentVertexCount = vertexCount;
+            } else if (mergedBaseVertex + currentVertexCount == baseVertex) {
+                mergedCount += count;
+                currentVertexCount += vertexCount;
+            } else {
+                renderBatch(mergedCount, mergedBaseVertex, indextype);
+                mergedCount = count;
+                mergedBaseVertex = baseVertex;
+                currentVertexCount = vertexCount;
+            }
         }
+
+        if (mergedBaseVertex != -1)
+            renderBatch(mergedCount, mergedBaseVertex, indextype);
+
+        GL20.glDisableVertexAttribArray(0);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
+        GL20.glDisableVertexAttribArray(3);
 
         this.bufferIndirect.clear();
 
         if (this.nextPos > this.size * 11 / 10)
             this.compactRanges();
+    }
+
+    private void renderBatch(int count, int baseVertex, VertexFormat.IndexType indextype) {
+        long offset = (long) baseVertex * vertexBytes;
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 28, offset);
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 28, offset + 12);
+        GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 28, offset + 20);
+        GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 28, offset + 24);
+        GL11.glDrawElements(this.drawMode.glMode, count, indextype.glType, 0);
     }
 
     public void unbindBuffer() {

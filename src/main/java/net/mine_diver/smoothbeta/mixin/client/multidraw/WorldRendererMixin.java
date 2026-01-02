@@ -88,6 +88,7 @@ abstract class WorldRendererMixin implements SmoothWorldRenderer {
 
         @Inject(method = "renderLastChunks(ID)V", at = @At("RETURN"))
         public void smoothbeta_afterRenderRegion(int d, double par2, CallbackInfo ci) {
+                smoothbeta_vboPool.drawAll();
                 Shaders.getTerrainShader().unbind();
 
                 GL20.glDisableVertexAttribArray(0); // pos

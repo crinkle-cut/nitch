@@ -16,9 +16,11 @@ import java.nio.ByteBuffer;
 
 @Mixin(Tessellator.class)
 abstract class TessellatorMixin implements SmoothTessellator {
-    @Shadow protected abstract void reset();
+    @Shadow
+    protected abstract void reset();
 
-    @Shadow private ByteBuffer byteBuffer;
+    @Shadow
+    private ByteBuffer byteBuffer;
     @Unique
     private boolean smoothbeta_renderingTerrain;
     @Unique
@@ -43,37 +45,21 @@ abstract class TessellatorMixin implements SmoothTessellator {
         return smoothbeta_renderingTerrain;
     }
 
-    @Inject(
-            method = "draw",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Ljava/nio/ByteBuffer;limit(I)Ljava/nio/Buffer;",
-                    shift = At.Shift.AFTER
-            ),
-            cancellable = true
-    )
+    @Inject(method = "draw", at = @At(value = "INVOKE", target = "Ljava/nio/ByteBuffer;limit(I)Ljava/nio/Buffer;", shift = At.Shift.AFTER), cancellable = true)
     private void smoothbeta_uploadTerrain(CallbackInfo ci) {
-        if (!smoothbeta_renderingTerrain) return;
+        if (!smoothbeta_renderingTerrain)
+            return;
         smoothbeta_chunkRenderer.smoothbeta_getCurrentBuffer().upload(byteBuffer);
         reset();
         ci.cancel();
     }
 
-    @ModifyConstant(
-            method = "vertex(DDD)V",
-            constant = @Constant(intValue = 7)
-    )
+    @ModifyConstant(method = "vertex(DDD)V", constant = @Constant(intValue = 7))
     private int smoothbeta_prohibitExtraVertices(int constant) {
         return smoothbeta_renderingTerrain ? -1 : constant;
     }
 
-    @ModifyConstant(
-            method = "vertex(DDD)V",
-            constant = @Constant(
-                    intValue = 8,
-                    ordinal = 2
-            )
-    )
+    @ModifyConstant(method = "vertex(DDD)V", constant = @Constant(intValue = 8, ordinal = 2))
     private int smoothbeta_compactVertices(int constant) {
         return smoothbeta_renderingTerrain ? 7 : 8;
     }

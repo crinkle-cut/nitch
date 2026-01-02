@@ -14,12 +14,10 @@ import java.util.List;
 public class RenderRegion extends ChunkRenderer {
 
     private final RenderListAccessor _super = (RenderListAccessor) this;
-    private final SmoothWorldRenderer stationWorldRenderer;
     private final List<VertexBuffer> buffers = new ArrayList<>();
 
     public RenderRegion(WorldRenderer worldRenderer) {
         _super.smoothbeta_setGlListBuffer(IntBuffer.allocate(0));
-        stationWorldRenderer = ((SmoothWorldRenderer) worldRenderer);
     }
 
     @Override
@@ -38,13 +36,16 @@ public class RenderRegion extends ChunkRenderer {
     }
 
     public void render() {
-        if (!_super.smoothbeta_getInitialized() || buffers.isEmpty()) return;
+        if (!_super.smoothbeta_getInitialized() || buffers.isEmpty())
+            return;
         Shader shader = Shaders.getTerrainShader();
         GlUniform chunkOffset = shader.chunkOffset;
-        chunkOffset.set(_super.smoothbeta_getX() - _super.smoothbeta_getOffsetX(), _super.smoothbeta_getY() - _super.smoothbeta_getOffsetY(), _super.smoothbeta_getZ() - _super.smoothbeta_getOffsetZ());
+        chunkOffset.set(_super.smoothbeta_getX() - _super.smoothbeta_getOffsetX(),
+                _super.smoothbeta_getY() - _super.smoothbeta_getOffsetY(),
+                _super.smoothbeta_getZ() - _super.smoothbeta_getOffsetZ());
         chunkOffset.upload();
-        for (VertexBuffer vertexBuffer : buffers) vertexBuffer.uploadToPool();
-        stationWorldRenderer.smoothbeta_getTerrainVboPool().drawAll();
+        for (VertexBuffer vertexBuffer : buffers)
+            vertexBuffer.uploadToPool();
         chunkOffset.set(Vec3f.ZERO);
     }
 }

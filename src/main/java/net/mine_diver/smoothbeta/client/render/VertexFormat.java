@@ -22,7 +22,8 @@ public class VertexFormat {
     }
 
     public String toString() {
-        return "format: " + this.elementMap.size() + " elements: " + this.elementMap.entrySet().stream().map(Object::toString).collect(Collectors.joining(" "));
+        return "format: " + this.elementMap.size() + " elements: "
+                + this.elementMap.entrySet().stream().map(Object::toString).collect(Collectors.joining(" "));
     }
 
     public int getVertexSizeByte() {
@@ -40,7 +41,7 @@ public class VertexFormat {
         if (o == null || this.getClass() != o.getClass()) {
             return false;
         }
-        VertexFormat vertexFormat = (VertexFormat)o;
+        VertexFormat vertexFormat = (VertexFormat) o;
         if (this.vertexSizeByte != vertexFormat.vertexSizeByte) {
             return false;
         }
@@ -51,7 +52,7 @@ public class VertexFormat {
         return this.elementMap.hashCode();
     }
 
-    @Environment(value=EnvType.CLIENT)
+    @Environment(value = EnvType.CLIENT)
     public enum DrawMode {
         LINES(4, 2, 2, false),
         LINE_STRIP(5, 2, 1, true),
@@ -82,7 +83,7 @@ public class VertexFormat {
         }
     }
 
-    @Environment(value=EnvType.CLIENT)
+    @Environment(value = EnvType.CLIENT)
     public enum IndexType {
         BYTE(GL11.GL_UNSIGNED_BYTE, 1),
         SHORT(GL11.GL_UNSIGNED_SHORT, 2),
