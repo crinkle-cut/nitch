@@ -1,4 +1,4 @@
-#version 150
+#version 120
 
 vec4 exp_fog(vec4 inColor, float vertexDistance, float density, vec4 fogColor) {
     float fogValue = exp(-density*vertexDistance);
@@ -20,14 +20,13 @@ vec4 linear_fog(vec4 inColor, float vertexDistance, float fogStart, float fogEnd
 }
 
 vec4 fog(int mode, vec4 inColor, float vertexDistance, float density, float fogStart, float fogEnd, vec4 fogColor) {
-    switch (mode) {
-        case 0:
+    if (mode == 0) {
         return exp_fog(inColor, vertexDistance, density, fogColor);
-        case 1:
+    } else if (mode == 1) {
         return exp2_fog(inColor, vertexDistance, density, fogColor);
-        case 2:
+    } else if (mode == 2) {
         return linear_fog(inColor, vertexDistance, fogStart, fogEnd, fogColor);
-        default:
+    } else {
         return vec4(0, 0, 0, 0);
     }
 }

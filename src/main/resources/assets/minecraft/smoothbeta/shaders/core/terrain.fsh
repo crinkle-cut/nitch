@@ -1,4 +1,4 @@
-#version 150 compatibility
+#version 120
 
 #moj_import <fog.glsl>
 
@@ -6,14 +6,12 @@ uniform sampler2D Sampler0;
 
 uniform int FogMode;
 
-in float vertexDistance;
-in vec2 texCoord0;
-in vec4 vertexColor;
-in vec4 normal;
-
-out vec4 fragColor;
+varying float vertexDistance;
+varying vec2 texCoord0;
+varying vec4 vertexColor;
+varying vec4 normal;
 
 void main() {
-    vec4 color = texture(Sampler0, texCoord0) * vertexColor;
-    fragColor = fog(FogMode, color, vertexDistance, gl_Fog.density, gl_Fog.start, gl_Fog.end, gl_Fog.color.rgba);
+    vec4 color = texture2D(Sampler0, texCoord0) * vertexColor;
+    gl_FragColor = fog(FogMode, color, vertexDistance, gl_Fog.density, gl_Fog.start, gl_Fog.end, gl_Fog.color.rgba);
 }
