@@ -10,7 +10,6 @@ import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-@SuppressWarnings("removal")
 public class VboPool implements AutoCloseable {
     @SuppressWarnings("deprecation")
     private static final MinecraftAccessor mc = ((MinecraftAccessor) FabricLoader.getInstance().getGameInstance());
@@ -72,6 +71,9 @@ public class VboPool implements AutoCloseable {
                 this.checkVboSize(poolPos.getPositionNext());
                 long l = this.toBytes(poolPos.getPosition());
                 this.bindBuffer();
+                // Orphaning: if we are updating a large chunk of the buffer, or just to be safe
+                // GL15.glBufferData(GL15.GL_ARRAY_BUFFER, toBytes(capacity),
+                // GL15.GL_STATIC_DRAW); // Too aggressive
                 GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, l, data);
                 this.unbindBuffer();
 
@@ -127,6 +129,12 @@ public class VboPool implements AutoCloseable {
 
             if (vborange == null)
                 this.nextPos = this.posList.getLast().getItem().getPositionNext();
+
+            // Orphaning: Discard old buffer content to avoid GPU stalls during massive
+            // reallocation.
+            // Note: This is typically done by calling glBufferData with a null data
+            // pointer.
+            // For incremental compaction, it's safer to just use glBufferSubData.
 
             this.compactPosLast = vborange;
         }
@@ -213,6 +221,9 @@ public class VboPool implements AutoCloseable {
     }
 
     public void drawAll() {
+        if (this.bufferIndirect.position() == 0)
+            return;
+
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, this.vertexBufferId);
 
         IndexBuffer autostorageindexbuffer = IndexBuffer.getSequentialBuffer(this.drawMode);
