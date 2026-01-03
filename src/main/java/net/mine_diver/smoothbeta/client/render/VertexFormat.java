@@ -22,7 +22,8 @@ public class VertexFormat {
     }
 
     public String toString() {
-        return "format: " + this.elementMap.size() + " elements: " + this.elementMap.entrySet().stream().map(Object::toString).collect(Collectors.joining(" "));
+        return "format: " + this.elementMap.size() + " elements: "
+                + this.elementMap.entrySet().stream().map(Object::toString).collect(Collectors.joining(" "));
     }
 
     public int getVertexSizeByte() {
@@ -40,7 +41,7 @@ public class VertexFormat {
         if (o == null || this.getClass() != o.getClass()) {
             return false;
         }
-        VertexFormat vertexFormat = (VertexFormat)o;
+        VertexFormat vertexFormat = (VertexFormat) o;
         if (this.vertexSizeByte != vertexFormat.vertexSizeByte) {
             return false;
         }
@@ -51,7 +52,7 @@ public class VertexFormat {
         return this.elementMap.hashCode();
     }
 
-    @Environment(value=EnvType.CLIENT)
+    @Environment(value = EnvType.CLIENT)
     public enum DrawMode {
         LINES(4, 2, 2, false),
         LINE_STRIP(5, 2, 1, true),
@@ -60,7 +61,7 @@ public class VertexFormat {
         TRIANGLES(4, 3, 3, false),
         TRIANGLE_STRIP(5, 3, 1, true),
         TRIANGLE_FAN(6, 3, 1, true),
-        QUADS(4, 4, 4, false);
+        QUADS(7, 4, 4, false);
 
         public final int glMode;
         public final int firstVertexCount;
@@ -76,13 +77,14 @@ public class VertexFormat {
 
         public int getIndexCount(int vertexCount) {
             return switch (this) {
-                case LINE_STRIP, DEBUG_LINES, DEBUG_LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN -> vertexCount;
-                case LINES, QUADS -> vertexCount / 4 * 6;
+                case LINE_STRIP, DEBUG_LINES, DEBUG_LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, QUADS ->
+                    vertexCount;
+                case LINES -> vertexCount / 4 * 6;
             };
         }
     }
 
-    @Environment(value=EnvType.CLIENT)
+    @Environment(value = EnvType.CLIENT)
     public enum IndexType {
         BYTE(GL11.GL_UNSIGNED_BYTE, 1),
         SHORT(GL11.GL_UNSIGNED_SHORT, 2),

@@ -22,7 +22,8 @@ public class VboPool implements AutoCloseable {
     private final LinkedList<Pos> posList = new LinkedList<>();
     private Pos compactPosLast = null;
 
-    private IntBuffer bufferIndirect = GlAllocationUtils.allocateIntBuffer(this.capacity * 5);
+    private IntBuffer firsts = GlAllocationUtils.allocateIntBuffer(this.capacity);
+    private IntBuffer counts = GlAllocationUtils.allocateIntBuffer(this.capacity);
     private final int vertexBytes;
     private VertexFormat.DrawMode drawMode = VertexFormat.DrawMode.QUADS;
 
@@ -180,7 +181,8 @@ public class VboPool implements AutoCloseable {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
         GL15.glDeleteBuffers(this.vertexBufferId);
-        this.bufferIndirect = GlAllocationUtils.allocateIntBuffer(i * 5);
+        this.firsts = GlAllocationUtils.allocateIntBuffer(i);
+        this.counts = GlAllocationUtils.allocateIntBuffer(i);
         this.vertexBufferId = l;
         this.capacity = i;
     }
@@ -191,48 +193,36 @@ public class VboPool implements AutoCloseable {
 
     public void upload(VertexFormat.DrawMode drawMode, Pos range) {
         if (this.drawMode != drawMode) {
-            if (this.bufferIndirect.position() > 0)
+            if (this.firsts.position() > 0)
                 throw new IllegalArgumentException("Mixed region draw modes: " + this.drawMode + " != " + drawMode);
 
             this.drawMode = drawMode;
         }
 
-        this.bufferIndirect.put(drawMode.getIndexCount(range.getSize()));
-        bufferIndirect.put(1);
-        this.bufferIndirect.put(0);
-        bufferIndirect.put(range.getPosition());
-        bufferIndirect.put(0);
+        this.counts.put(range.getSize());
+        this.firsts.put(range.getPosition());
     }
 
     public void drawAll() {
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, this.vertexBufferId);
+        if (this.firsts.position() == 0)
+            return;
 
-        IndexBuffer autostorageindexbuffer = IndexBuffer.getSequentialBuffer(this.drawMode);
-        VertexFormat.IndexType indextype = autostorageindexbuffer.getIndexType();
-        autostorageindexbuffer.bindAndGrow(nextPos / 4 * 6);
-        this.bufferIndirect.flip();
+        this.bindBuffer();
 
-        while (this.bufferIndirect.hasRemaining()) {
-            int count = this.bufferIndirect.get();
-            this.bufferIndirect.get(); // instanceCount
-            int firstIndex = this.bufferIndirect.get();
-            int baseVertex = this.bufferIndirect.get();
-            this.bufferIndirect.get(); // baseInstance
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 28, 0L);
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 28, 12L);
+        GL20.glEnableVertexAttribArray(2);
+        GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 28, 20L);
+        GL20.glEnableVertexAttribArray(3);
+        GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 28, 24L);
 
-            long offset = (long) baseVertex * vertexBytes;
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 28, offset);
-            GL20.glEnableVertexAttribArray(1);
-            GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 28, offset + 12);
-            GL20.glEnableVertexAttribArray(2);
-            GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 28, offset + 20);
-            GL20.glEnableVertexAttribArray(3);
-            GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 28, offset + 24);
-
-            GL11.glDrawElements(this.drawMode.glMode, count, indextype.glType, (long) firstIndex * indextype.size);
-        }
-
-        this.bufferIndirect.clear();
+        this.firsts.flip();
+        this.counts.flip();
+        GL14.glMultiDrawArrays(this.drawMode.glMode, this.firsts, this.counts);
+        this.firsts.clear();
+        this.counts.clear();
 
         if (this.nextPos > this.size * 11 / 10)
             this.compactRanges();
