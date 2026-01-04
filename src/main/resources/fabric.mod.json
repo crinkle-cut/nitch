@@ -1,36 +1,31 @@
 {
   "schemaVersion": 1,
-  "id": "smoothbeta",
+  "id": "nitch",
   "version": "${version}",
-
-  "name": "SmoothBeta",
+  "name": "nitch",
   "description": "Additional settings and optimizations for beta that allow for smoother experience!",
   "authors": [
-    "mine_diver"
+    "mine_diver",
+    "crinkle-cut"
   ],
   "contact": {
-    "homepage": "https://glass-repo.net/repo/mod/smoothbeta",
-    "sources": "https://github.com/mineLdiver/smoothbeta",
-    "issues": "https://github.com/mineLdiver/smoothbeta/issues"
+    "sources": "https://github.com/crinkle-cut/nitch"
   },
-
   "license": "CC0-1.0",
-  "icon": "assets/smoothbeta/icon.png",
-
+  "icon": "assets/nitch/icon.png",
   "environment": "*",
   "entrypoints": {
     "stationapi:event_bus": [
-      "net.mine_diver.smoothbeta.SmoothBeta"
+      "net.mine_diver.nitch.nitch"
     ],
     "stationapi:event_bus_client": [
-      "net.mine_diver.smoothbeta.client.SmoothBetaClient",
-      "net.mine_diver.smoothbeta.client.render.Shaders"
+      "net.mine_diver.nitch.client.nitchClient",
+      "net.mine_diver.nitch.client.render.Shaders"
     ]
   },
   "mixins": [
-    "smoothbeta.mixins.json"
+    "nitch.mixins.json"
   ],
-
   "depends": {
     "minecraft": "1.0.0-beta.7.3",
     "stationapi": ">=2.0.0-alpha.3"
