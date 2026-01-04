@@ -2,7 +2,7 @@ package net.mine_diver.smoothbeta.client.render;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.util.math.MathHelper;
+import net.mine_diver.smoothbeta.util.math.MathHelper;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.ByteBuffer;
@@ -56,20 +56,23 @@ public final class IndexBuffer {
     }
 
     public void bindAndGrow(int newSize) {
-        if (this.id == 0) this.id = GL15.glGenBuffers();
+        if (this.id == 0)
+            this.id = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, this.id);
         this.grow(newSize);
     }
 
     private void grow(int newSize) {
-        if (this.isSizeLessThanOrEqual(newSize)) return;
+        if (this.isSizeLessThanOrEqual(newSize))
+            return;
         newSize = MathHelper.roundUpToMultiple(newSize * 2, this.increment);
         LOGGER.debug("Growing IndexBuffer: Old limit {}, new limit {}.", this.size, newSize);
         VertexFormat.IndexType indexType = VertexFormat.IndexType.smallestFor(newSize);
         int i = MathHelper.roundUpToMultiple(newSize * indexType.size, 4);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, i, GL15.GL_DYNAMIC_DRAW);
         ByteBuffer byteBuffer = GL15.glMapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_WRITE_ONLY, null);
-        if (byteBuffer == null) throw new RuntimeException("Failed to map GL buffer");
+        if (byteBuffer == null)
+            throw new RuntimeException("Failed to map GL buffer");
         this.indexType = indexType;
         IntConsumer intConsumer = this.getIndexConsumer(byteBuffer);
         for (int j = 0; j < newSize; j += this.increment)

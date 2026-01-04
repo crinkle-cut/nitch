@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.GlAllocationUtils;
-import net.modificationstation.stationapi.api.util.Util;
 import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
@@ -12,10 +11,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class GlStateManager {
-    private static final boolean ON_LINUX = Util.getOperatingSystem() == Util.OperatingSystem.LINUX;
+    private static final boolean ON_LINUX = System.getProperty("os.name").toLowerCase().contains("linux");
     private static final BlendFuncState BLEND = new BlendFuncState();
     private static int activeTexture;
-    private static final Texture2DState[] TEXTURES = IntStream.range(0, 12).mapToObj(i -> new Texture2DState()).toArray(Texture2DState[]::new);
+    private static final Texture2DState[] TEXTURES = IntStream.range(0, 12).mapToObj(i -> new Texture2DState())
+            .toArray(Texture2DState[]::new);
 
     public static void _glDeleteBuffers(int buffer) {
         if (ON_LINUX) {
@@ -34,7 +34,7 @@ public class GlStateManager {
         byte[] bs = stringBuilder.toString().getBytes(Charsets.UTF_8);
         ByteBuffer byteBuffer = GlAllocationUtils.allocateByteBuffer(bs.length + 1);
         byteBuffer.put(bs);
-        byteBuffer.put((byte)0);
+        byteBuffer.put((byte) 0);
         byteBuffer.flip();
         GL20.glShaderSource(shader, byteBuffer);
     }
@@ -56,7 +56,9 @@ public class GlStateManager {
     }
 
     public static void _blendFuncSeparate(int srcFactorRGB, int dstFactorRGB, int srcFactorAlpha, int dstFactorAlpha) {
-        if (srcFactorRGB != GlStateManager.BLEND.srcFactorRGB || dstFactorRGB != GlStateManager.BLEND.dstFactorRGB || srcFactorAlpha != GlStateManager.BLEND.srcFactorAlpha || dstFactorAlpha != GlStateManager.BLEND.dstFactorAlpha) {
+        if (srcFactorRGB != GlStateManager.BLEND.srcFactorRGB || dstFactorRGB != GlStateManager.BLEND.dstFactorRGB
+                || srcFactorAlpha != GlStateManager.BLEND.srcFactorAlpha
+                || dstFactorAlpha != GlStateManager.BLEND.dstFactorAlpha) {
             GlStateManager.BLEND.srcFactorRGB = srcFactorRGB;
             GlStateManager.BLEND.dstFactorRGB = dstFactorRGB;
             GlStateManager.BLEND.srcFactorAlpha = srcFactorAlpha;
@@ -124,7 +126,8 @@ public class GlStateManager {
         public int srcFactorAlpha = 1;
         public int dstFactorAlpha = 0;
 
-        BlendFuncState() {}
+        BlendFuncState() {
+        }
     }
 
     @Environment(EnvType.CLIENT)
@@ -132,6 +135,7 @@ public class GlStateManager {
         public boolean capState;
         public int boundTexture;
 
-        Texture2DState() {}
+        Texture2DState() {
+        }
     }
 }

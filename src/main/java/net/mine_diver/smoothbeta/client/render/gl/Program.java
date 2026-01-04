@@ -3,12 +3,13 @@ package net.mine_diver.smoothbeta.client.render.gl;
 import com.google.common.collect.Maps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.client.texture.TextureUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
@@ -41,24 +42,29 @@ public class Program {
 		return this.name;
 	}
 
-	public static Program createFromResource(Type type, String name, InputStream stream, String domain, GLImportProcessor loader) throws IOException {
+	public static Program createFromResource(Type type, String name, InputStream stream, String domain,
+			GLImportProcessor loader) throws IOException {
 		int i = loadProgram(type, name, stream, domain, loader);
 		Program program = new Program(type, i, name);
 		type.getProgramCache().put(name, program);
 		return program;
 	}
 
-	protected static int loadProgram(Type type, String name, InputStream stream, String domain, GLImportProcessor loader) throws IOException {
-		String string = TextureUtil.readResourceAsString(stream);
-		if (string == null) throw new IOException("Could not load program " + type.getName());
+	protected static int loadProgram(Type type, String name, InputStream stream, String domain,
+			GLImportProcessor loader) throws IOException {
+		String string = IOUtils.toString(stream, StandardCharsets.UTF_8);
+		if (string == null)
+			throw new IOException("Could not load program " + type.getName());
 		else {
 			int i = GL20.glCreateShader(type.getGlType());
 			GlStateManager.glShaderSource(i, loader.readSource(string));
 			GL20.glCompileShader(i);
 			if (GL20.glGetShaderi(i, GL20.GL_COMPILE_STATUS) == 0) {
 				String string2 = StringUtils.trim(GL20.glGetShaderInfoLog(i, MAX_LOG_LENGTH));
-				throw new IOException("Couldn't compile " + type.getName() + " program (" + domain + ", " + name + ") : " + string2);
-			} else return i;
+				throw new IOException(
+						"Couldn't compile " + type.getName() + " program (" + domain + ", " + name + ") : " + string2);
+			} else
+				return i;
 		}
 	}
 

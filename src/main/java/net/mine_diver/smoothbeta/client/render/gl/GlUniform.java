@@ -2,14 +2,14 @@ package net.mine_diver.smoothbeta.client.render.gl;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.mine_diver.smoothbeta.util.math.Vec3f;
 import net.minecraft.client.util.GlAllocationUtils;
-import net.modificationstation.stationapi.api.util.math.Vec3f;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import static net.modificationstation.stationapi.impl.client.texture.StationRenderImpl.LOGGER;
+import static net.mine_diver.smoothbeta.SmoothBeta.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class GlUniform extends Uniform implements AutoCloseable {
@@ -60,17 +60,25 @@ public class GlUniform extends Uniform implements AutoCloseable {
 		GL20.glBindAttribLocation(program, index, name);
 	}
 
-	public void close() {}
+	public void close() {
+	}
 
-	private void markStateDirty() {}
+	private void markStateDirty() {
+	}
 
 	public static int getTypeIndex(String typeName) {
 		int i = -1;
-		if ("int".equals(typeName)) i = INT1;
-		else if ("float".equals(typeName)) i = FLOAT1;
-		else if (typeName.startsWith("matrix")) if (typeName.endsWith("2x2")) i = MAT2X2;
-		else if (typeName.endsWith("3x3")) i = MAT3X3;
-		else if (typeName.endsWith("4x4")) i = MAT4X4;
+		if ("int".equals(typeName))
+			i = INT1;
+		else if ("float".equals(typeName))
+			i = FLOAT1;
+		else if (typeName.startsWith("matrix"))
+			if (typeName.endsWith("2x2"))
+				i = MAT2X2;
+			else if (typeName.endsWith("3x3"))
+				i = MAT3X3;
+			else if (typeName.endsWith("4x4"))
+				i = MAT4X4;
 
 		return i;
 	}
@@ -101,26 +109,34 @@ public class GlUniform extends Uniform implements AutoCloseable {
 
 	public final void setForDataType(float value1, float value2, float value3, float value4) {
 		this.floatData.position(0);
-		if (this.dataType >= FLOAT1) this.floatData.put(0, value1);
+		if (this.dataType >= FLOAT1)
+			this.floatData.put(0, value1);
 
-		if (this.dataType >= FLOAT2) this.floatData.put(1, value2);
+		if (this.dataType >= FLOAT2)
+			this.floatData.put(1, value2);
 
-		if (this.dataType >= FLOAT3) this.floatData.put(2, value3);
+		if (this.dataType >= FLOAT3)
+			this.floatData.put(2, value3);
 
-		if (this.dataType >= FLOAT4) this.floatData.put(3, value4);
+		if (this.dataType >= FLOAT4)
+			this.floatData.put(3, value4);
 
 		this.markStateDirty();
 	}
 
 	public final void setForDataType(int value1, int value2, int value3, int value4) {
 		this.intData.position(0);
-		if (this.dataType >= INT1) this.intData.put(0, value1);
+		if (this.dataType >= INT1)
+			this.intData.put(0, value1);
 
-		if (this.dataType >= INT2) this.intData.put(1, value2);
+		if (this.dataType >= INT2)
+			this.intData.put(1, value2);
 
-		if (this.dataType >= INT3) this.intData.put(2, value3);
+		if (this.dataType >= INT3)
+			this.intData.put(2, value3);
 
-		if (this.dataType >= INT4) this.intData.put(3, value4);
+		if (this.dataType >= INT4)
+			this.intData.put(3, value4);
 
 		this.markStateDirty();
 	}
@@ -133,7 +149,8 @@ public class GlUniform extends Uniform implements AutoCloseable {
 
 	public final void set(float[] values) {
 		if (values.length < this.count)
-			LOGGER.warn("Uniform.set called with a too-small value array (expected {}, got {}). Ignoring.", this.count, values.length);
+			LOGGER.warn("Uniform.set called with a too-small value array (expected {}, got {}). Ignoring.", this.count,
+					values.length);
 		else {
 			this.floatData.position(0);
 			this.floatData.put(values);
@@ -149,8 +166,10 @@ public class GlUniform extends Uniform implements AutoCloseable {
 	}
 
 	public void upload() {
-		if (this.dataType <= INT4) this.uploadInts();
-		else if (this.dataType <= FLOAT4) this.uploadFloats();
+		if (this.dataType <= INT4)
+			this.uploadInts();
+		else if (this.dataType <= FLOAT4)
+			this.uploadFloats();
 		else {
 			if (this.dataType > MAT4X4) {
 				LOGGER.warn("Uniform.upload called, but type value ({}) is not a valid type. Ignoring.", this.dataType);
@@ -168,7 +187,9 @@ public class GlUniform extends Uniform implements AutoCloseable {
 			case INT2 -> GL20.glUniform2(this.location, this.intData);
 			case INT3 -> GL20.glUniform3(this.location, this.intData);
 			case INT4 -> GL20.glUniform4(this.location, this.intData);
-			default -> LOGGER.warn("Uniform.upload called, but count value ({}) is  not in the range of 1 to 4. Ignoring.", this.count);
+			default ->
+				LOGGER.warn("Uniform.upload called, but count value ({}) is  not in the range of 1 to 4. Ignoring.",
+						this.count);
 		}
 	}
 
@@ -179,7 +200,8 @@ public class GlUniform extends Uniform implements AutoCloseable {
 			case FLOAT2 -> GL20.glUniform2(this.location, this.floatData);
 			case FLOAT3 -> GL20.glUniform3(this.location, this.floatData);
 			case FLOAT4 -> GL20.glUniform4(this.location, this.floatData);
-			default -> LOGGER.warn("Uniform.upload called, but count value ({}) is not in the range of 1 to 4. Ignoring.", this.count);
+			default -> LOGGER.warn(
+					"Uniform.upload called, but count value ({}) is not in the range of 1 to 4. Ignoring.", this.count);
 		}
 	}
 

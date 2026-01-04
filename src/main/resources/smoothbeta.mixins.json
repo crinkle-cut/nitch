@@ -11,14 +11,11 @@
     "client.multidraw.RenderListAccessor",
     "client.multidraw.TessellatorMixin",
     "client.multidraw.WorldRendererMixin",
-    "client.multidraw.compat.arsenic.ArsenicTessellatorMixin",
-    "client.multidraw.compat.stationrendererapi.StationTessellatorImplMixin",
     "client.multidraw.nop.ChunkRendererMixin"
   ],
   "mixins": [
     "MixinServerChunkCache",
-    "entity.MixinEntityRegistry",
-    "entity.compat.stationentities.EntityRegisterEventMixin"
+    "entity.MixinEntityRegistry"
   ],
   "injectors": {
     "defaultRequire": 1
